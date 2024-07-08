@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: { fileSize: 2 * 1024 * 1024 },
 }).array("files", 10); // 최대 10개의 파일 업로드 허용
 
@@ -32,7 +32,10 @@ app.use(express.json());
 // 파일 업로드 API
 app.post("/upload", (req, res) => {
   upload(req, res, (err) => {
-    const uploadedFiles = req.files.map((file) => ({
+    const uploadedFiles = req
+    .files
+    .filter((file) => file.fileSize <= upload.fileSize ) // todo: 크키가 딱 맞는 파일이 업로드 되는지는 경계선 테스트해봐야함
+    .map((file) => ({
       fileName: file.originalname,
       filePath: file.path,
       fileSize: file.size,
